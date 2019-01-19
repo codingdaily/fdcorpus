@@ -1,3 +1,6 @@
+import json, os
+import hashlib
+
 def default_fn(args):
     '''
         give default action: (showing the usage)
@@ -33,6 +36,33 @@ def register_fn(args):
     # reg_cmd.add_argument('email', help='Your email, so we can inform you latest data from Female Daily Network')
     # reg_cmd.add_argument('phone', help="Let's connect! we wanted to know who use our data, please enter the number :) ")
     # reg_cmd.add_argument('institution', help=occupation_help)
+
+
+    home = os.path.expanduser('~')
+    fd_utilpath = os.path.join(home, '.fdutils')
+    if not os.path.isdir(fd_utilpath):
+        os.makedirs(fd_utilpath)
+
+    fd_utilfile = os.path.join(fd_utilpath, 'token.config')
+
+    token_param = {
+        'telegramid' : '',
+        'name': '',
+        'email': '',
+        'phone': '',
+        'institution': ''
+    }
+    print("open file...")
+
+    if os.path.isfile(fd_utilfile):
+        with open(fd_utilfile, 'r') as f:
+            print("read config")
+            token_str = f.read()
+            token_param = json.loads(token_str)
+
+    print("token param : {}".format(token_param))
+
+    #take the user information
     help = '''
         Hello, Register yourself.
         telegram : please entry telegram id without @
@@ -42,24 +72,39 @@ def register_fn(args):
         insitution: where do you work: The Avengers Initiative America
             if you're a student use your uni e.g University of Gotham
     '''
-    print(help)
+    # print(help)
 
-    telegram_id = input("username telegram: ")
-    name  = input("name: ")
-    email = input("email: ")
-    phone = input("phone: ")
-    insitution = input("institution: ")
+    temp = input("username telegram [{}]: ".format(token_param['telegramid']))
+    token_param['telegramid'] = temp or token_param['telegramid']
+    temp = None
 
-    print(" this is your data to be registered: {} \n {} \n {} \n {} \n {}".format(telegram_id, name, email, phone, insitution))
+    temp = input("name [{}]: ".format(token_param['name']))
+    token_param['name']  = temp or token_param['name']
+    temp = None
 
+    temp = input("email [{}]: ".format(token_param['email']))
+    token_param['email']  = temp or token_param['email']
+    temp = None
 
-
-
+    temp = input("phone [{}]: ".format(token_param['phone']))
+    token_param['phone']  = temp or token_param['phone']
+    temp = None
     
+    temp = input("institution [{}]: ".format(token_param['institution']))
+    token_param['institution']  = temp or token_param['institution']
+    temp = None
 
-    #register the user
-    #tasks:
-    #take the user information
-    #store user session info
+    print(" this is your data to be registered: {}".format(token_param))
+
+    token_str = json.dumps(token_param)
+    token = hashlib.md5(str.encode(token_str)).hexdigest()
+
+    with open(fd_utilfile, 'w+') as f :
+        token_param['token'] = token
+        config_entry = json.dumps(token_param)
+        print("config entry {}, type: {}".format(config_entry, type(config_entry)))
+        f.writelines(config_entry)
+    
     #store user info to server
-    pass
+    print("Storing to the server")
+    print("Thank You! please see : list and download ")

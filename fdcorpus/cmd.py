@@ -19,8 +19,6 @@ def main():
     
 
     download_cmd.add_argument('corpus-id', help="corpus ID you wanted to download")
-
-
     #set defaults actions
     reg_cmd.set_defaults(func=register_fn)
     list_cmd.set_defaults(func=list_fn)
@@ -31,6 +29,7 @@ def main():
     try:
         args.func(args)
     except Exception as e:
+        print("error <!!!!> : {}".format(e))
         parser.print_help()
     
 
